@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::post("/register", function (Request $request) {
-    $request->validade([
+    $request->validate([
         'email' => "required|string|email|unique:users",
         'name' => "required|string|max:32",
         'password' => "required|string|min:6",
