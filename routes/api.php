@@ -1,7 +1,9 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,6 +16,25 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+Route::post("/register", function (Request $request) {
+    $request->validade([
+        'email' => "required|string|email|unique:users",
+        'name' => "required|string|max:32",
+        'password' => "required|string|min:6",
+    ]);
+
+    $user = User::create([
+        "email" => $request->email,
+        "name" => $request->name,
+        "password" => Hash::make($request->password),
+    ]);
+
+    return request()->json([
+        "message" => "Sucesso",
+        "user" => $user,
+    ]);
+});
 
 Route::post('/login', function (Request $request) {
     $credentials = $request->only('email', 'password');
