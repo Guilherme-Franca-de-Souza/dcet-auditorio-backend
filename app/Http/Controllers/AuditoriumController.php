@@ -22,13 +22,27 @@ class AuditoriumController extends Controller
         // Criar um auditório
         public function store(Request $request)
         {
-            $validatedData = $request->validate([
-                'name' => 'required|string|max:255',
-                'capacity' => 'required|integer|min:1',
-                'location' => 'required|string|max:255',
-            ]);
+            \Log::info($request->all());
+            try {
+                $validatedData = $request->validate([
+                    'name' => 'required|string|max:255',
+                    'capacity' => 'required|integer|min:1',
+                    'location' => 'required|string|max:255',
+                ]);
 
-            $auditorium = Auditorium::create($validatedData);
+                \Log::info($validatedData['name']);
+                
+                $auditorium = new Auditorium();
+
+                $auditorium->name = $validatedData['name'];
+                $auditorium->capacity = $validatedData['capacity'];
+                $auditorium->location = $validatedData['location'];
+
+                $auditorium->save();
+            } catch (\Exception $e) {
+                \Log::info($e);
+            }
+            
             return response()->json(['message' => 'Auditorium created successfully', 'auditorium' => $auditorium], 201);
         }
 

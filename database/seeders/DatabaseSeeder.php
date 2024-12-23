@@ -14,12 +14,6 @@ class DatabaseSeeder extends Seeder
     {
         // \App\Models\User::factory(10)->create();
 
-        //\App\Models\User::factory()->create([
-        //     'name' => 'Admin User',
-        //     'email' => 'admin@admin.com',
-        //     'admin' => 1,
-        //]);
-
         // Chamando os seeders individuais
         $this->call([
             UserSeeder::class,
