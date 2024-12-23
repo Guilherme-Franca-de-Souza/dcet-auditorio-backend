@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('matricula')->unique();
             $table->string('cpf')->unique();
             $table->boolean('is_admin')->default(false);
+            $table->boolean('approved')->default(false);
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
             $table->timestamps();

@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use app\Models\Auditorium;
-use app\Models\Equipment;
-use app\Models\Penalty;
-use app\Models\Reservation;
-use app\Models\User;
+use App\Models\Auditorium;
+use App\Models\Equipment;
+use App\Models\Penalty;
+use App\Models\Reservation;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
