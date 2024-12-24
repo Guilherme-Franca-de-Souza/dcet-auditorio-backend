@@ -9,6 +9,8 @@ class Reservation extends Model
 {
     use HasFactory;
 
+    protected $guarded = [];
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -17,10 +19,5 @@ class Reservation extends Model
     public function auditorium()
     {
         return $this->belongsTo(Auditorium::class);
-    }
-
-    public function equipment()
-    {
-        return $this->belongsToMany(Equipment::class, 'equipment_reservation');
     }
 }

@@ -14,8 +14,6 @@ return new class extends Migration
         Schema::create('equipment', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->unsignedBigInteger('auditorium_id');
-            $table->foreign('auditorium_id')->references('id')->on('auditoriums')->onDelete('cascade');
             $table->timestamps();
         });
     }

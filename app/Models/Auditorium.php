@@ -9,6 +9,8 @@ class Auditorium extends Model
 {
     protected $table = 'auditoriums';
 
+    protected $guarded = [];
+
     use HasFactory;
 
     public function reservations()
@@ -18,6 +20,6 @@ class Auditorium extends Model
 
     public function equipment()
     {
-        return $this->hasMany(Equipment::class);
+        return $this->hasMany(Auditorium::class, 'equipment_auditorium');
     }
 }

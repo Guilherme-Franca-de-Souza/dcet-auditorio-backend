@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             AuditoriumSeeder::class,
             ReservationSeeder::class,
+            EquipmentSeeder::class,
         ]);
     }
 }

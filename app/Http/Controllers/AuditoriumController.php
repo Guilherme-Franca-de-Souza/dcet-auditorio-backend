@@ -22,15 +22,12 @@ class AuditoriumController extends Controller
         // Criar um auditório
         public function store(Request $request)
         {
-            \Log::info($request->all());
             try {
                 $validatedData = $request->validate([
                     'name' => 'required|string|max:255',
                     'capacity' => 'required|integer|min:1',
                     'location' => 'required|string|max:255',
                 ]);
-
-                \Log::info($validatedData['name']);
                 
                 $auditorium = new Auditorium();
 
@@ -40,7 +37,7 @@ class AuditoriumController extends Controller
 
                 $auditorium->save();
             } catch (\Exception $e) {
-                \Log::info($e);
+                return response()->json(['message' => $e->getMessage()], $e->getStatusCode());
             }
             
             return response()->json(['message' => 'Auditorium created successfully', 'auditorium' => $auditorium], 201);
@@ -56,22 +53,31 @@ class AuditoriumController extends Controller
         // Atualizar auditório
         public function update(Request $request, $id)
         {
-            $validatedData = $request->validate([
-                'name' => 'string|max:255',
-                'capacity' => 'integer|min:1',
-                'location' => 'string|max:255',
-            ]);
-
-            $auditorium = Auditorium::findOrFail($id);
-            $auditorium->update($validatedData);
+            try {
+                $validatedData = $request->validate([
+                    'name' => 'string|max:255',
+                    'capacity' => 'integer|min:1',
+                    'location' => 'string|max:255',
+                ]);
+                
+                $auditorium = Auditorium::findOrFail($id);
+                $auditorium->update($validatedData);
+            } catch (\Exception $e) {
+                return response()->json(['message' => $e->getMessage()], $e->getStatusCode());
+            }
+            
             return response()->json(['message' => 'Auditorium updated successfully', 'auditorium' => $auditorium], 200);
         }
 
         // Remover auditório
         public function destroy($id)
         {
-            $auditorium = Auditorium::findOrFail($id);
-            $auditorium->delete();
+            try {
+                $auditorium = Auditorium::findOrFail($id);
+                $auditorium->delete();
+            } catch (\Exception $e) {
+                return response()->json(['message' => $e->getMessage()], $e->getStatusCode());
+            }
             return response()->json(['message' => 'Auditorium deleted successfully'], 200);
         }
 }

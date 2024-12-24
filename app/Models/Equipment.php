@@ -9,13 +9,10 @@ class Equipment extends Model
 {
     use HasFactory;
 
-    public function auditorium()
-    {
-        return $this->belongsTo(Auditorium::class);
-    }
+    protected $guarded = [];
 
-    public function reservations()
+    public function auditoriums()
     {
-        return $this->belongsToMany(Reservation::class, 'equipment_reservation');
+        return $this->belongsToMany(Auditorium::class, 'equipment_auditorium');
     }
 }

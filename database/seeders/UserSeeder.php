@@ -20,6 +20,7 @@ class UserSeeder extends Seeder
             'email' => 'admin@example.com',
             'password' => Hash::make('password'),
             'matricula' => 'ADM123456',
+            'role' => 'COORDINATOR',
             'cpf' => '11111111111',
             'is_admin' => true,
             'approved' => true,
@@ -31,6 +32,7 @@ class UserSeeder extends Seeder
             'email' => 'professor@example.com',
             'password' => Hash::make('password'),
             'matricula' => 'PROF123456',
+            'role' => 'PROFESSOR',
             'cpf' => '22222222222',
             'is_admin' => false,
             'approved' => true,
@@ -41,7 +43,19 @@ class UserSeeder extends Seeder
             'email' => 'technician@example.com',
             'password' => Hash::make('password'),
             'matricula' => 'TECH123456',
+            'role' => 'TECHNICIAN',
             'cpf' => '33333333333',
+            'is_admin' => false,
+            'approved' => true,
+        ]);
+
+        User::create([
+            'name' => 'Student One',
+            'email' => 'student@example.com',
+            'password' => Hash::make('password'),
+            'matricula' => 'STUD123456',
+            'role' => 'OTHER',
+            'cpf' => '44444444444',
             'is_admin' => false,
             'approved' => true,
         ]);
