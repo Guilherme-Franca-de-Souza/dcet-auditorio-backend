@@ -66,6 +66,7 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
 
     // Aprovação de Reservas
     Route::prefix('reservations')->group(function () {
+        Route::get('/all', [ReservationController::class, 'all'])->name('admin.reservations.all');
         Route::get('/pending', [ReservationController::class, 'pending'])->name('admin.reservations.pending'); ## ()
         Route::post('/{id}/approve', [ReservationController::class, 'approve'])->name('admin.reservations.approve'); ## ()
         Route::post('/{id}/reject', [ReservationController::class, 'reject'])->name('admin.reservations.reject'); ## ()

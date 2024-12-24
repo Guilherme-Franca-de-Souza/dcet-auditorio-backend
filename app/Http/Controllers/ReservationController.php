@@ -12,6 +12,18 @@ use Illuminate\Support\Facades\Auth;
 
 class ReservationController extends Controller
 {
+    // Listar reservas
+    public function all()
+    {
+        try {
+            $reservations = Reservation::all();
+            return response()->json($reservations, 200);
+        } catch (\Exception $e) {
+            \Log::info($e);
+        }
+        
+    }
+
     // Listar reservas do usuário autenticado
     public function index()
     {
@@ -36,14 +48,33 @@ class ReservationController extends Controller
     public function store(Request $request)
     {
         try {
+            // Validação dos dados da requisição
             $validatedData = $request->validate([
                 'auditorium_id' => 'required|exists:auditoriums,id',
-                'start_time' => 'required|date',
+                'start_time' => 'required|date|after:now',
                 'end_time' => 'required|date|after:start_time',
                 'description' => 'required|string|max:255',
                 'participants_count' => 'required|integer|min:1',
             ]);
 
+            $user = Auth::user();
+
+            // Verificar se a conta está aprovada
+            if (!$user->approved) {
+                return response()->json(['message' => 'You cannot create a reservation, your account is not approved yet.'], 403);
+            }
+
+            // Verificar penalidades ativas
+            $hasActivePenalty = $user->penalties()->where(function ($query) use ($validatedData) {
+                $query->where('start_date', '<=', $validatedData['start_time'])
+                    ->where('end_date', '>=', $validatedData['start_time']);
+            })->exists();
+
+            if ($hasActivePenalty) {
+                return response()->json(['message' => 'You cannot create a reservation due to an active penalty.'], 403);
+            }
+
+            // Verificar conflitos de horário com outras reservas
             $overlap = Reservation::where('auditorium_id', $validatedData['auditorium_id'])
                 ->where(function ($query) use ($validatedData) {
                     $query->whereBetween('start_time', [$validatedData['start_time'], $validatedData['end_time']])
@@ -54,14 +85,16 @@ class ReservationController extends Controller
                 return response()->json(['message' => 'Auditorium is not available at the chosen time'], 422);
             }
 
-            $reservation = Auth::user()->reservations()->create($validatedData);
+            // Criar a reserva
+            $reservation = $user->reservations()->create($validatedData);
 
         } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], $e->getStatusCode());
+            return response()->json(['message' => $e->getMessage()], $e->getCode() ?: 400);
         }
 
         return response()->json(['message' => 'Reservation created successfully', 'reservation' => $reservation], 201);
     }
+
 
     // Cancelar uma reserva
     public function destroy($id)
@@ -85,7 +118,7 @@ class ReservationController extends Controller
 
             $reservation->delete();
         } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], $e->getStatusCode());
+            return response()->json(['message' => $e->getMessage()], $e->getCode());
         }
         return response()->json(['message' => 'Reservation canceled successfully'], 200);
     }
@@ -112,7 +145,7 @@ class ReservationController extends Controller
             $reservation = Reservation::findOrFail($id);
             $reservation->update(['approved' => true]);
         } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], $e->getStatusCode());
+            return response()->json(['message' => $e->getMessage()], $e->getCode());
         }
         return response()->json(['message' => 'Reservation approved successfully'], 200);
     }
@@ -124,7 +157,7 @@ class ReservationController extends Controller
             $reservation = Reservation::findOrFail($id);
             $reservation->delete();
         } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], $e->getStatusCode());
+            return response()->json(['message' => $e->getMessage()], $e->getCode());
         }
         return response()->json(['message' => 'Reservation rejected successfully'], 200);
     }

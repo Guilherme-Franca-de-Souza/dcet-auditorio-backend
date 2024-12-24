@@ -42,8 +42,7 @@ class AuditoriumController extends Controller
                     $auditorium->equipment()->sync($validatedData['equipment']);
                 }
             } catch (\Exception $e) {
-                \Log::info($e);
-                return response()->json(['message' => $e->getMessage()], $e->getStatusCode());
+                return response()->json(['message' => $e->getMessage()], $e->getCode());
             }
             
             return response()->json(['message' => 'Auditorium created successfully', 'auditorium' => $auditorium], 201);
@@ -69,13 +68,17 @@ class AuditoriumController extends Controller
                 ]);
                 
                 $auditorium = Auditorium::findOrFail($id);
-                $auditorium->update($validatedData);
+                $auditorium->update([
+                    'name' => $validatedData['name'] ?? $auditorium->name,
+                    'capacity' => $validatedData['capacity'] ?? $auditorium->capacity,
+                    'location' => $validatedData['location'] ?? $auditorium->location,
+                ]);
 
                 if (!empty($validatedData['equipment'])) {
                     $auditorium->equipment()->sync($validatedData['equipment']);
                 }
             } catch (\Exception $e) {
-                return response()->json(['message' => $e->getMessage()], $e->getStatusCode());
+                return response()->json(['message' => $e->getMessage()], $e->getCode());
             }
             
             return response()->json(['message' => 'Auditorium updated successfully', 'auditorium' => $auditorium], 200);
@@ -88,7 +91,7 @@ class AuditoriumController extends Controller
                 $auditorium = Auditorium::findOrFail($id);
                 $auditorium->delete();
             } catch (\Exception $e) {
-                return response()->json(['message' => $e->getMessage()], $e->getStatusCode());
+                return response()->json(['message' => $e->getMessage()], $e->getCode());
             }
             return response()->json(['message' => 'Auditorium deleted successfully'], 200);
         }
