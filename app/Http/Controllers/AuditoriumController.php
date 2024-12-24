@@ -27,6 +27,8 @@ class AuditoriumController extends Controller
                     'name' => 'required|string|max:255',
                     'capacity' => 'required|integer|min:1',
                     'location' => 'required|string|max:255',
+                    'equipment' => 'array',
+                    'equipment.*' => 'exists:equipment,id',
                 ]);
                 
                 $auditorium = new Auditorium();
@@ -34,9 +36,13 @@ class AuditoriumController extends Controller
                 $auditorium->name = $validatedData['name'];
                 $auditorium->capacity = $validatedData['capacity'];
                 $auditorium->location = $validatedData['location'];
-
                 $auditorium->save();
+
+                if (!empty($validatedData['equipment'])) {
+                    $auditorium->equipment()->sync($validatedData['equipment']);
+                }
             } catch (\Exception $e) {
+                \Log::info($e);
                 return response()->json(['message' => $e->getMessage()], $e->getStatusCode());
             }
             
@@ -58,10 +64,16 @@ class AuditoriumController extends Controller
                     'name' => 'string|max:255',
                     'capacity' => 'integer|min:1',
                     'location' => 'string|max:255',
+                    'equipment' => 'array',
+                    'equipment.*' => 'exists:equipment,id',
                 ]);
                 
                 $auditorium = Auditorium::findOrFail($id);
                 $auditorium->update($validatedData);
+
+                if (!empty($validatedData['equipment'])) {
+                    $auditorium->equipment()->sync($validatedData['equipment']);
+                }
             } catch (\Exception $e) {
                 return response()->json(['message' => $e->getMessage()], $e->getStatusCode());
             }

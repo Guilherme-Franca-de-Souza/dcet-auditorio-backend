@@ -42,8 +42,6 @@ class ReservationController extends Controller
                 'end_time' => 'required|date|after:start_time',
                 'description' => 'required|string|max:255',
                 'participants_count' => 'required|integer|min:1',
-                'equipment' => 'array',
-                'equipment.*' => 'exists:equipment,id',
             ]);
 
             $overlap = Reservation::where('auditorium_id', $validatedData['auditorium_id'])
