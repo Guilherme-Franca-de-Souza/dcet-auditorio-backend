@@ -43,6 +43,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('/{id}', [ReservationController::class, 'destroy'])->name('reservations.destroy'); ## ()
         Route::get('/history', [ReservationController::class, 'history'])->name('reservations.history'); ## ()
     });
+
+
+    Route::prefix('auditoriums')->group(function () {
+        Route::post('/{id}/verify', [AuditoriumController::class, 'verify'])->name('admin.auditoriums.verify');
+    });
 });
 
 // Rotas Protegidas para Administradores

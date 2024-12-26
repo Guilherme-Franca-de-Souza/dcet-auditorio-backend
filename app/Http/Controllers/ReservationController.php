@@ -15,13 +15,8 @@ class ReservationController extends Controller
     // Listar reservas
     public function all()
     {
-        try {
-            $reservations = Reservation::all();
-            return response()->json($reservations, 200);
-        } catch (\Exception $e) {
-            \Log::info($e);
-        }
-        
+        $reservations = Reservation::all();
+        return response()->json($reservations, 200);
     }
 
     // Listar reservas do usuário autenticado
@@ -76,6 +71,7 @@ class ReservationController extends Controller
 
             // Verificar conflitos de horário com outras reservas
             $overlap = Reservation::where('auditorium_id', $validatedData['auditorium_id'])
+                ->where('approved', true)
                 ->where(function ($query) use ($validatedData) {
                     $query->whereBetween('start_time', [$validatedData['start_time'], $validatedData['end_time']])
                         ->orWhereBetween('end_time', [$validatedData['start_time'], $validatedData['end_time']]);
