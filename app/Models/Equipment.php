@@ -13,6 +13,6 @@ class Equipment extends Model
 
     public function auditoriums()
     {
-        return $this->belongsToMany(Auditorium::class, 'equipment_auditorium');
+        return $this->belongsToMany(Auditorium::class, 'equipment_auditorium', 'equipment_id', 'auditorium_id');
     }
 }

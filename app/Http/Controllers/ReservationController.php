@@ -8,6 +8,10 @@ use App\Models\Equipment;
 use App\Models\Penalty;
 use App\Models\Reservation;
 use App\Models\User;
+use App\Notifications\PenaltieApplied;
+use App\Notifications\ReservationCanceled;
+use App\Notifications\ReservationConfirmed;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class ReservationController extends Controller
@@ -84,6 +88,14 @@ class ReservationController extends Controller
             // Criar a reserva
             $reservation = $user->reservations()->create($validatedData);
 
+            $info = [
+                'auditorio' => $reservation->auditorium->name,
+                'data' => Carbon::parse($reservation->start_time)->format('d/m/Y'),
+                'horario' => Carbon::parse($reservation->start_time)->format('H:i') . ' - ' . Carbon::parse($reservation->end_time)->format('H:i'),
+            ];
+
+            $user->notify(new ReservationConfirmed($info));
+
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], $e->getCode() ?: 400);
         }
@@ -95,28 +107,55 @@ class ReservationController extends Controller
     // Cancelar uma reserva
     public function destroy($id)
     {
+        $responseMessage = 'Reservation canceled successfully';
+
         try {
+            $user = Auth::user();
+
             $reservation = Reservation::findOrFail($id);
 
             if ($reservation->user_id !== Auth::id()) {
                 return response()->json(['message' => 'Unauthorized'], 403);
             }
 
+            $penaltyApplied = false;
+
             if (now()->diffInHours($reservation->start_time) < 24) {
                 // Adicionar penalidade
-                Penalty::create([
+                $penalty = Penalty::create([
                     'user_id' => Auth::id(),
                     'start_date' => now(),
                     'end_date' => now()->addMonth(),
                 ]);
-                return response()->json(['message' => 'Reservation canceled late. Penalty applied.'], 200);
+
+                $penaltyApplied = true;
             }
 
             $reservation->delete();
+
+            if ($penaltyApplied) {
+                $info = 
+                [
+                    'data' => Carbon::parse($penalty->end_date)->format('d/m/Y')
+                ];
+
+                $user->notify(new PenaltieApplied($info));
+
+                $responseMessage = 'Reservation canceled late. Penalty applied.';
+            }
+
+            $info = [
+                'auditorio' => $reservation->auditorium->name,
+                'data' => Carbon::parse($reservation->start_time)->format('d/m/Y'),
+                'horario' => Carbon::parse($reservation->start_time)->format('H:i') . ' - ' . Carbon::parse($reservation->end_time)->format('H:i'),
+            ];
+            
+            $user->notify(new ReservationCanceled($info));
+
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], $e->getCode());
         }
-        return response()->json(['message' => 'Reservation canceled successfully'], 200);
+        return response()->json(['message' => $responseMessage], 200);
     }
 
     // Histórico de reservas
